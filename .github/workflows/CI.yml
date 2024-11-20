@@ -43,5 +43,5 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Run JAR file
-        run: java -jar ./__w/Money_Maven/Money_Maven/target/Money-1.0-SNAPSHOT.jar
+      - name: Find JAR file
+        run: find . -name "*.jar"
