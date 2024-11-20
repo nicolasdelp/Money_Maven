@@ -43,5 +43,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Deploy Application
-        run: java -jar ./target/Money-1.0-SNAPSHOT.jar
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: money-jar
+      - name: Run JAR file
+        run: java -jar Money-1.0-SNAPSHOT.jar
