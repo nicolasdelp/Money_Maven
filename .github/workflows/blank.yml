@@ -1,0 +1,84 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Utilisation d'une image Ubuntu, vous pouvez utiliser d'autres environnements si nécessaire
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Maven
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          maven-version: '3.6.0'
+
+      - name: Compile and package
+        run: |
+          mvn compile
+          mvn package
+
+      # Télécharger les artefacts générés
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: target/  # Le répertoire contenant les artefacts à uploader
+
+  test:
+    runs-on: ubuntu-latest
+
+    needs: build  # Le job de test dépend du job "build"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Maven
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          maven-version: '3.6.0'
+
+      - name: Run unit tests
+        run: mvn test
+
+      # Télécharger les artefacts du job précédent (build)
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production  # Déploiement sur l'environnement de production
+
+    needs: build  # Le job de déploiement dépend du job "build"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Maven
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          maven-version: '3.6.0'
+
+      - name: Deploy to production
+        run: java -jar ./target/Money-1.0-SNAPSHOT.jar
+
+      # Télécharger les artefacts du job précédent (build)
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
